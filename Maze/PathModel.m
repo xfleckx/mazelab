@@ -8,8 +8,15 @@ classdef PathModel
         Id
         Matrix
     end
-    
+       
+    properties (SetAccess = private)
+        heatMap
+    end
     methods
+        function PlotAsHeatMap(obj, mazeMatrix)
+            pathMatrix = mazeMatrix + obj.Matrix;
+            obj.heatMap = HeatMap(pathMatrix);
+        end;
     end
     
 end
