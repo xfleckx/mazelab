@@ -27,14 +27,14 @@ end;
 
 %marker separator 
 ms = '\t'; % tabulator
-
 turnFromTo = ['Turn' ms 'From\(\d+\s\d+\)' ms 'To\(\d+\s\d+\)'];
 
+% assuming we want to compare Turns against non-turns
 expectedMarkerPattern = MarkerPattern([turnFromTo ms 'T' ms 'LEFT'],'T CROSS LEFT TURN'); 
 expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'T' ms 'RIGHT'],'T CROSS RIGHT TURN');
 expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'I' ms 'STRAIGHT'],'NO TURN');
 % don't care about the actual objects... just wan't to look after an ERP
-expectedMarkerPattern(end+1) = MarkerPattern('ShowObject','Object');
+expectedMarkerPattern(end+1) = MarkerPattern('ShowObject|ObjectFound','Object');
 % Create Events for epoching the data set
-EEG = MergeAndAppendEvents(EEG, expectedMarkerPattern);
+EEG = GenerateEventClasses(EEG, expectedMarkerPattern);
 % Export the Events to mobilab

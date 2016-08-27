@@ -1,4 +1,4 @@
-function [ EEG ] = GenerateAbstractEvents( EEG, patternClassPairs )
+function [ EEG ] = GenerateEventClasses( EEG, patternClassPairs )
 % GenerateAbstractEvents  Create more abstract Events from context specific Events. 
 %   Example 'TURN From... To... L ' will become L TURN
 %   Intention is to increase sample size for different epochs.
