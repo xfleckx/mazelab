@@ -48,3 +48,19 @@ for bound = bounds
     result = [result; origin(bounds(1)+1:bounds(2)-1)]
 end
 ```
+
+# Construction of regular expressions in MATLAB
+
+## Important features
+
+Joining a string based on several components written by hand:
+```matlab
+aJoinedString = ['a' 'b' 'c']; 
+```
+> 'abc'
+Joining a string based on several components defined as a cell array:
+```matlab
+ca = {'Training' 'Experiment'};
+aJoinedOR = strjoin(ca,'|');
+```
+> 'Training|Experiment'
