@@ -1,6 +1,6 @@
 %% set some parameters
 dirContainingMazeFiles = 'testData/MazeModels';
-dirContainingXDFfiles = '';
+dirContainingXDFfiles = 'the_first_mobivr_pilot.xdf';
 %% start EEGLAB
 eeglab
 %% Load xdf dataset
