@@ -8,75 +8,50 @@ function mazeModel = ImportMazeModel( filename )
             throw(MException('ImportMazeModel:FileNotFound', filename ));
     end
     
-    
     [path,name,~] = fileparts(filename);
-    
+
+    fileContent = fileread(filename);
+
     mazeModel = MazeModel();
-    mazeModel.Name = name;
+    mazeModel.SourceFile = name;
     
-    mazeMatrixPattern = 'matlab matrix:';
-    pathLinePattern = 'Path: ';
-    pathMatrixPattern = 'matlab path matrix:';
+    mazeMatrixPattern = 'Maze:\s*([\w|\d]*)\s*matlab matrix:\s*(\[(\s\w*|\s*[,|;]+\s*)+ \])+';
+
+    pathLinePattern = 'Path:\s*([\w|\d]*)\s*matlab path matrix:\s*(\[(\s\w*|\s*[,|;]+\s*)+ \])+';
     
     Paths = [];
     
     disp(['Importing Maze: ' mazeModel.Name ' from file: ' name ' at location: ' path]);
     
-    fid = fopen( filename ); % open the file
-    while ~feof(fid) % loop over the following until the end of the file is reached.
-          line = fgets(fid); % read in one line
-          
-          disp(['Read line: "' line '"']);
+    
+    [match, groups] = regexp(fileContent, mazeMatrixPattern, 'match', 'tokens');
 
-          if strfind(line, mazeMatrixPattern) % if that line contains 'p', set the first index to 1
-              startOfMatrixString = strfind(line, mazeMatrixPattern) + length(mazeMatrixPattern);
-              endOfMatrixString = length(line);
-              mazeMatrixAsString = line(startOfMatrixString : endOfMatrixString);
-              
-              disp(['Try to evaluate Maze matrix: ' mazeMatrixAsString ]);
-              
-              resultOfEval =  eval( mazeMatrixAsString );
-              clear mazeMatrixAsString
-              mazeModel.Matrix = resultOfEval;
-              continue;
-          end
-          
-          
-          if strfind(line, pathLinePattern) 
-              
-              if strfind(line, pathMatrixPattern)
-                  
-                startOfMatrixPattern = strfind(line, pathMatrixPattern);
-                
-                startOfMatrixString = startOfMatrixPattern + length(pathMatrixPattern);
-                
-                endOfMatrixString = length(line);
-                
-                PathMatrixAsString = line(startOfMatrixString : endOfMatrixString);    
-                
-                startIndexOfPathID = length(pathLinePattern);
-                endIndexOfPathID = startOfMatrixPattern;
-                
-                pathID = line(startIndexOfPathID : endIndexOfPathID);
-                newPath = PathModel();
-                newPath.Id = pathID;
-                newPath.RefMazeName = mazeModel.Name;
-                
-                disp(['Try to evaluate Path matrix: ' PathMatrixAsString ]);
-                
-                resultOfEval = eval(PathMatrixAsString);
-                clear PathMatrixAsString
-                newPath.Matrix = resultOfEval;
-                
-                mazeModel.Paths = [mazeModel.Paths newPath];
-                
-              end
-              
-          end
-    end
-    fclose(fid);
+    mazeId = groups{1}{1};
+    mazeModel.Name = mazeId;
+    mazeMatrixAsString = groups{1}{2}; 
+
+    disp(['Try to evaluate Maze matrix: ' mazeMatrixAsString ]);
     
+    resultOfEval =  eval( mazeMatrixAsString );
+    clear mazeMatrixAsString
+    mazeModel.Matrix = resultOfEval;
     
+    [match, groups] = regexp(fileContent, pathLinePattern, 'match', 'tokens');
+
+    for i = 1 : length(groups)
+        newPath = PathModel();
+        newPath.Id = groups{i}{1};
+        newPath.RefMazeName = mazeModel.Name;
+        pathMatrixAsString = groups{i}{2}; 
+
+        disp(['Try to evaluate Path matrix: ' pathMatrixAsString ]);
+
+        resultOfEval = eval(pathMatrixAsString);
+        clear PathMatrixAsString
+        newPath.Matrix = resultOfEval;
+
+        mazeModel.Paths = [mazeModel.Paths newPath];
+    end 
     disp(['Finished import of Maze: ' mazeModel.Name ]);
     
 end
