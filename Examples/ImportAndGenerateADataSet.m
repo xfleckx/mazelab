@@ -1,14 +1,15 @@
 %% set some parameters
-dirContainingMazeFiles = 'testData/MazeModels';
-dirContainingXDFfiles = 'the_first_mobivr_pilot.xdf';
+dirContainingMazeFiles = 'testData/*.maze';
+dirContainingXDFfiles = 'testData/*.xdf';
 %% start EEGLAB
 eeglab
+
 %% Load xdf dataset
 
 xdfFiles = dir(dirContainingXDFfiles);
 
 for file = xdfFiles
-
+    pop_loadxdf(file.name);
 end;
 
 
@@ -16,8 +17,8 @@ end;
 
 mazeFiles = dir(dirContainingMazeFiles);
 
-for file = mazeFiles
-    MAZELAB.LASTIMPORT = load_maze(file);
+for fi = 1:length(mazeFiles)
+    MAZELAB.LASTIMPORT = load_maze(mazeFiles(fi).name);
     MAZELAB.MAZES = [ MAZELAB.MAZES MAZELAB.LASTIMPORT ] ;
 end;
 
@@ -36,5 +37,5 @@ expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'I' ms 'STRAIGHT'],'
 % don't care about the actual objects... just wan't to look after an ERP
 expectedMarkerPattern(end+1) = MarkerPattern('ShowObject|ObjectFound','Object');
 % Create Events for epoching the data set
-EEG = GenerateEventClasses(EEG, expectedMarkerPattern);
+%EEG = GenerateEventClasses(EEG, expectedMarkerPattern);
 % Export the Events to mobilab
