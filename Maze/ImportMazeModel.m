@@ -9,7 +9,7 @@ function mazeModel = ImportMazeModel( filename )
     end
     
     
-    [~,name,~] = fileparts(filename);
+    [path,name,~] = fileparts(filename);
     
     mazeModel = MazeModel();
     mazeModel.Name = name;
@@ -20,14 +20,25 @@ function mazeModel = ImportMazeModel( filename )
     
     Paths = [];
     
+    disp(['Importing Maze: ' mazeModel.Name ' from file: ' name ' at location: ' path]);
+    
     fid = fopen( filename ); % open the file
     while ~feof(fid) % loop over the following until the end of the file is reached.
           line = fgets(fid); % read in one line
           
+          disp(['Read line: "' line '"']);
+
           if strfind(line, mazeMatrixPattern) % if that line contains 'p', set the first index to 1
               startOfMatrixString = strfind(line, mazeMatrixPattern) + length(mazeMatrixPattern);
               endOfMatrixString = length(line);
               mazeMatrixAsString = line(startOfMatrixString : endOfMatrixString);
+              
+              disp(['Try to evaluate Maze matrix: ' mazeMatrixAsString ]);
+              
+              resultOfEval =  eval( mazeMatrixAsString );
+              clear mazeMatrixAsString
+              mazeModel.Matrix = resultOfEval;
+              continue;
           end
           
           
@@ -50,7 +61,13 @@ function mazeModel = ImportMazeModel( filename )
                 newPath = PathModel();
                 newPath.Id = pathID;
                 newPath.RefMazeName = mazeModel.Name;
-                newPath.Matrix = eval(PathMatrixAsString);
+                
+                disp(['Try to evaluate Path matrix: ' PathMatrixAsString ]);
+                
+                resultOfEval = eval(PathMatrixAsString);
+                clear PathMatrixAsString
+                newPath.Matrix = resultOfEval;
+                
                 mazeModel.Paths = [mazeModel.Paths newPath];
                 
               end
@@ -59,7 +76,7 @@ function mazeModel = ImportMazeModel( filename )
     end
     fclose(fid);
     
-    mazeModel.Matrix = eval(mazeMatrixAsString);
     
+    disp(['Finished import of Maze: ' mazeModel.Name ]);
     
 end
