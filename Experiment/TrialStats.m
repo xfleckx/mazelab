@@ -5,6 +5,7 @@ classdef TrialStats
         Maze
         Path
         EventSet
+        MazeStats
     end
     methods 
         function obj = TrialStats(type, maze, path, eventSet)
