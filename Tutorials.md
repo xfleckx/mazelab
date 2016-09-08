@@ -64,3 +64,13 @@ ca = {'Training' 'Experiment'};
 aJoinedOR = strjoin(ca,'|');
 ```
 > 'Training|Experiment'
+
+# Displaying on the Console
+
+```matlab
+message = ['a' 'b' 'c'];
+error(message); % gets printed in red
+fprinf(2, message); % also prints in red
+disp(message); % gets printed in normal text color
+fprinf(1, message); also prints in normal text color
+```
