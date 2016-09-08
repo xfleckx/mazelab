@@ -1,4 +1,4 @@
-classdef MazeModel
+classdef MazeModel < handle
     %MAZEMODEL A representation of a MoBI Maze
     %   Instances of this class representing all informations about
     %   a single maze instance from a BeMoBI navigation experiment
@@ -44,6 +44,9 @@ classdef MazeModel
             obj.heatMap = HeatMap(obj.Matrix);
         end;
 
+        function Plot(obj)
+            
+        end;
     end
     
 end
