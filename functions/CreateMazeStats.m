@@ -9,7 +9,9 @@ function mazeStats = CreateMazeStats( trialStats )
 
     unitSegments = subset(trialStats.EventSet, 'Entering Unit', 'Exiting Unit');
     countOfUnits = length(unitSegments);
-    
+
+    allTics = [];
+
     for idx = 1:countOfUnits
         
         markerSet = unitSegments(idx).set;
@@ -31,7 +33,12 @@ function mazeStats = CreateMazeStats( trialStats )
         if isempty(unitValue)
             error(['Try to access empty unit at address at Col ' num2str(col) ' Row ' num2str(row)]);
         end
-
+        allTics = [allTics timeInCell];
         mazeStats.MazeMatrix(row,col) = unitValue * timeInCell;
     end
+
+    mazeStats.Tics.All = allTics;
+    mazeStats.Tics.AvgTic = mean(allTics);
+    mazeStats.Tics.Std = std(allTics);
+
 end
