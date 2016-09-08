@@ -6,6 +6,7 @@ classdef TrialStats
         Path
         EventSet
         MazeStats
+        Turns
     end
     methods 
         function obj = TrialStats(type, maze, path, eventSet)
@@ -13,6 +14,7 @@ classdef TrialStats
             obj.Maze = maze;
             obj.Path = path;
             obj.EventSet = eventSet;
+            obj.Turns = [];
         end
     end
 end
