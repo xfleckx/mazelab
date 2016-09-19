@@ -34,7 +34,7 @@ function mazeModel = ImportMazeModel( filename )
     
     resultOfEval =  eval( mazeMatrixAsString );
     clear mazeMatrixAsString
-    mazeModel.Matrix = resultOfEval;
+    mazeModel.Matrix = resultOfEval; % reverse the row order to get the original Maze Pattern!?
     
     [match, groups] = regexp(fileContent, pathLinePattern, 'match', 'tokens');
 

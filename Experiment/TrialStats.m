@@ -2,6 +2,7 @@ classdef TrialStats
 
     properties
         Type
+        Condition
         Maze
         Path
         EventSet
@@ -9,8 +10,9 @@ classdef TrialStats
         Turns
     end
     methods 
-        function obj = TrialStats(type, maze, path, eventSet)
+        function obj = TrialStats(type, condition, maze, path, eventSet)
             obj.Type = type;
+            obj.Condition = condition;
             obj.Maze = maze;
             obj.Path = path;
             obj.EventSet = eventSet;

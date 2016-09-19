@@ -14,7 +14,7 @@ function mazeStats = CreateMazeStats( trialStats )
 
     for idx = 1:countOfUnits
         
-        markerSet = unitSegments(idx).set;
+        markerSet = unitSegments{idx};
 
         firstMarkerInSet = markerSet(1);
         lastMarkerInSet = markerSet(end);
