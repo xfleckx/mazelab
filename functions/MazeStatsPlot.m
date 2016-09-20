@@ -1,4 +1,4 @@
-function output = MazeStatsPlot(input, varargin)
+function figureHandle = MazeStatsPlot(input, varargin)
 %MazeStatsPlot - Description
 %
 % Syntax: output = MazeStatsPlot(input)
@@ -8,13 +8,30 @@ function output = MazeStatsPlot(input, varargin)
 p = inputParser;
 
 validateInputAsInstanceOfMazeStat = @(x) isa(x,'MazeStatistics');
-addRequired(p, 'input', validateInputAsInstanceOfMazeStat)
+addRequired(p, 'input', validateInputAsInstanceOfMazeStat);
+addOptional(p, 'onlyTics', false, @islogical);
 
 parse(p, input, varargin{:})
 
-output = figure('Name', 'Tics within this Maze');
-imagesc(input.MazeMatrix);
-colormap('gray');
-colorbar;
+sizeOfMazeMatrix = size(input.MazeMatrix);
 
+dataToPlot = input.MazeMatrix;
+
+if p.Results.onlyTics
+  dataToPlot = input.MazeModel.Matrix + dataToPlot;
+end
+
+plotTitle = ['Time in Cell: ' input.MazeModel.Name ' Path ' input.Path];
+
+figureHandle = figure('Name', plotTitle);
+
+ih = imagesc(flipud(dataToPlot));
+
+set(gca,'YDir','normal');
+title(plotTitle);
+
+colormap('gray');
+cb = colorbar;
+set(get(cb,'title'),'string','(Seconds)','Rotation',90.0);
+pbaspect([sizeOfMazeMatrix(2) sizeOfMazeMatrix(1) 1]);
 end
