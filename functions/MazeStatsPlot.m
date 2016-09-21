@@ -32,6 +32,6 @@ title(plotTitle);
 
 colormap('gray');
 cb = colorbar;
-set(get(cb,'title'),'string','(Seconds)','Rotation',90.0);
+set(get(cb,'title'),'string','(Sec)');
 pbaspect([sizeOfMazeMatrix(2) sizeOfMazeMatrix(1) 1]);
 end
