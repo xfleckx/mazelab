@@ -26,7 +26,7 @@ Which will result in:
 
 >  3     5     6     8
 
-indicating which positions math either the start or the end condition. 
+indicating which positions math either the start or the end condition.
 Assuming that they are still in the correct order, we shape them into an array of 2D vectors.
 
 ```matlab
@@ -37,7 +37,7 @@ and use them to get the range including the boundaries
 ```matlab
 result = []
 for bound = bounds
-  result = [result; origin(bounds(1):bounds(2))] 
+  result = [result; origin(bounds(1):bounds(2))]
 end
 ```
 
@@ -49,13 +49,34 @@ for bound = bounds
 end
 ```
 
+## Access structures in arrays
+
+Using a combination of arrayfun(...) and find(...);
+Let _acs_ be an array containing structs.
+
+```matlab
+selectionFun = @(x) x.Property == targetValue;
+logicalIndices = arrayfun(selectionFun, acs);
+indicesMatchingSelection = find(logicalIndices);
+results = acs(indicesMatchingSelection);
+```
+An real world example using the where() function from the MAZELAB utils.
+
+```matlab
+%% build a selection function
+selectionFun = @(t) strcmp(t.Maze.Name, 'Maze1');
+% instead of doing this...
+selectionResult = trials(find(arrayfun(selectionFun, trials)));
+% use this shortcut
+selectionResult = where(trials, selectionFun);
+```
 # Construction of regular expressions in MATLAB
 
 ## Important features
 
 Joining a string based on several components written by hand:
 ```matlab
-aJoinedString = ['a' 'b' 'c']; 
+aJoinedString = ['a' 'b' 'c'];
 ```
 > 'abc'
 Joining a string based on several components defined as a cell array:
