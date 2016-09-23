@@ -1,40 +1,51 @@
-classdef MazeLab
+classdef MazeLab < handle
+  properties
+      MAZES
+      LASTIMPORT
+   end
+   
    methods(Static)
-      function result = Check( MAZELAB )
-          if ~isstruct(MAZELAB)
-            error([inputname(MAZELAB) ' argument must be an MAZELAB dataset structure']);
+     function MAZELAB = getInstance
+     % function: Get a singleton representing MazeLab application
+     %
+          persistent localObj
+
+          if isempty(localObj) || ~isvalid(localObj)
+             localObj = MazeLab();
           end
 
-          if ~isfield(MAZELAB, 'MAZES')
-              error('MAZELAB parameter should contain the MAZES field');
-          end
+          MAZELAB = localObj;
+     end  % function
+    end
 
-          result = 1;
-      end
+  methods (Access = private)
 
-      function MAZELAB = Import ( sourceDir , MAZELAB, varargin )
-      % function: Short description
-      %
-      % Extended description
-      p = inputParser;
-
-      validateSourceDir = @(x) ischar(x) && isstruct(dir(sourceDir));
-      addRequired(p, 'sourceDir', validateSourceDir);
-
-      addRequired(p, 'MAZELAB', @MazeLab.Check)
-
-      parse(p, sourceDir, MAZELAB, varargin{:});
-
-      mazeFiles = dir(p.Results.sourceDir);
-
-      MAZELAB = p.Results.MAZELAB;
-
-      for f = 1:length(mazeFiles)
-          MAZELAB.LASTIMPORT = load_maze(mazeFiles(f).name);
-          MAZELAB.MAZES = [ MAZELAB.MAZES MAZELAB.LASTIMPORT ] ;
-      end
-
-      end  % function
+    function obj = MazeLab()
 
     end
+
+  end
+
+  methods(Access = public)
+    function Import (obj, sourceDir , varargin )
+    % function: Import environmental data into MAZELAB
+    %
+    % Extended description
+    p = inputParser;
+
+    validateSourceDir = @(x) ischar(x) && isstruct(dir(sourceDir));
+    addRequired(p, 'sourceDir', validateSourceDir);
+
+    parse(p, sourceDir, varargin{:});
+
+    mazeFiles = dir(p.Results.sourceDir);
+
+    for f = 1:length(mazeFiles)
+        obj.LASTIMPORT = load_maze(mazeFiles(f).name);
+        obj.MAZES = [ obj.MAZES obj.LASTIMPORT ] ;
+    end
+
+    end  % function
+
+  end
 end
