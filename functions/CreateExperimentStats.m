@@ -27,7 +27,11 @@ for condition = conditions
      ['Begin\s+Condition\s+\W+' condition '\W+'],...
      ['End\s+Condition\s+\W+' condition '\W+']); 
 
-    disp('Start subsetting per Environment')
+     if isempty(MAZELAB.MAZES)
+        error('MAZELAB doesnt know any environments. Import them first!');
+     end
+     
+     disp('Start subsetting per Environment')
     for maze = MAZELAB.MAZES; 
 
         disp(['Start subsetting per Trial Type in Maze: ' maze.Name]);
