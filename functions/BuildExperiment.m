@@ -1,4 +1,4 @@
-function output = CreateExperimentStats(EEG, MAZELAB, trialTypes, conditions, subject, varargin)
+function output = BuildExperiment(EEG, MAZELAB, trialTypes, conditions, subject, varargin)
 %myFun - Description
 %
 % Syntax: output = myFun(input)
