@@ -3,7 +3,7 @@ classdef MazeLab < handle
       MAZES
       LASTIMPORT
    end
-   
+
    methods(Static)
      function MAZELAB = getInstance
      % function: Get a singleton representing MazeLab application
@@ -46,6 +46,37 @@ classdef MazeLab < handle
     end
 
     end  % function
+    function experiment = CreateExperimentStats(obj, EEG, trialTypes, conditions, subject)
+       p = inputParser;
+       valEvents = @(x) isfield(x,'event') && ~isempty(x.event);
+       addRequired(p, 'EEG', valEvents);
+       addRequired(p, 'trialTypes', @iscell);
+       addRequired(p, 'conditions', @iscell);
+       addRequired(p, 'subject', @ischar);
 
+       parse(p, EEG, trialTypes, conditions, subject);
+
+       experiment = BuildExperiment(EEG, obj, trialTypes, conditions, subject);
+    end
+    function fig = PlotOverview(obj,varargin)
+
+        p = inputParser;
+        addOptional(p,'all',1);
+        parse(p, varargin{:});
+
+        mazesCount = numel(obj.MAZES);
+        % Bug here... this won't work for even maze count
+        rows = mod(mazesCount, ceil(mazesCount / 2));
+        cols = mod(mazesCount, ceil(mazesCount / 2));
+
+        fig = figure;
+
+        for i = 1:mazesCount
+
+            subplot(rows, cols, i);
+            PlotAsImageSc(obj.MAZES(i), 'mazeOnly', 1, 'noFigure', 1);
+        end
+
+    end
   end
 end
