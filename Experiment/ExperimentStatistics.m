@@ -21,7 +21,12 @@ classdef ExperimentStatistics
             if isfield(obj.Trials,attribute)
                 selectedTrials = arrayfun(@(t) getfield(t,attribute) == attributeValue,obj.Trials,'UniformOutput',1) 
             end
-        end;
+        end
+        function summary = summarize(obj)
+            summary.totalTrials = numel(obj.Trials);
+            mazesUsed = unique( [ obj.Trials.Maze ] );
+            summary.environments = { mazesUsed.Name };
+        end
     end
     
 end
