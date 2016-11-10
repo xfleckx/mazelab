@@ -1,0 +1,26 @@
+
+S = [...
+    0 0 0 0;...
+    0 0 2 0;... 
+    8 9 5 0;...
+    0 0 0 0];
+
+ kernelSize = [ ...
+     0 0 0 0 ; ...
+     0 1 1 0 ; ...
+     0 1 1 0 ; ...
+     0 0 0 0];
+
+result = kron(S, kernelSize);
+
+[m,n] = size(S);
+
+for i = 0:m-1
+    for j = 0:n-1
+       source = S(i+1,j+1);
+       kernel = GetKernelFor(source);
+       result(i*m + 1:i*m+m,j*n +1:j*n+n) = kernel;
+    end
+end
+
+imagesc(result);
