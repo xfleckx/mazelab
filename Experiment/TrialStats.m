@@ -18,5 +18,10 @@ classdef TrialStats
             obj.EventSet = eventSet;
             obj.Turns = [];
         end
+
+        function duration = getDuration(obj)
+            duration = obj.EventSet(end).latency - obj.EventSet(1).latency;
+        end
+        
     end
 end
