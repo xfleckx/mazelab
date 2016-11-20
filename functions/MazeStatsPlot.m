@@ -1,4 +1,4 @@
-function figureHandle = MazeStatsPlot(input, varargin)
+function figureHandle = MazeStatsPlot(mazeStatistics, varargin)
 %MazeStatsPlot - Description
 %
 % Syntax: output = MazeStatsPlot(input)
@@ -11,17 +11,19 @@ validateInputAsInstanceOfMazeStat = @(x) isa(x,'MazeStatistics');
 addRequired(p, 'input', validateInputAsInstanceOfMazeStat);
 addOptional(p, 'onlyTics', false, @islogical);
 
-parse(p, input, varargin{:})
+parse(p, mazeStatistics, varargin{:})
 
-sizeOfMazeMatrix = size(input.MazeMatrix);
+%result = kron(S, kernelSize);
 
-dataToPlot = input.MazeMatrix;
+sizeOfMazeMatrix = size(mazeStatistics.MazeMatrix);
+
+dataToPlot = mazeStatistics.MazeMatrix;
 
 if p.Results.onlyTics
-  dataToPlot = input.MazeModel.Matrix + dataToPlot;
+  dataToPlot = mazeStatistics.MazeModel.Matrix + dataToPlot;
 end
 
-plotTitle = ['Time in Cell: ' input.MazeModel.Name ' Path ' input.Path];
+plotTitle = ['Time in Cell: ' mazeStatistics.MazeModel.Name ' Path ' mazeStatistics.Path];
 
 figureHandle = figure('Name', plotTitle);
 
