@@ -1,42 +1,48 @@
 function mazeModel = ImportMazeModel( filename )
     % ImportMazeModel expect a file containing the representation of a
     % Maze as binary matrix
+    % mazeModel = ImportMazeModel(aFileName) try to read a .maze file
+    % mazeModel = ImportMazeModel(aFileName, 'verbose', 1) print detailed logs
+
     p = inputParser();
     addRequired(p,'filename',@ischar);
-    parse(p,filename)
+    addOptional(p,'verbose', 0);
+
+    parse(p,filename);
+    verbose = p.Results.verbose;
+
     if ~exist(filename, 'file')
             throw(MException('ImportMazeModel:FileNotFound', filename ));
     end
     
-    [path,name,~] = fileparts(filename);
+    [pathstr,name,~] = fileparts(filename);
 
     fileContent = fileread(filename);
 
     mazeModel = MazeModel();
-    mazeModel.SourceFile = name;
-    
-    mazeMatrixPattern = 'Maze:\s*([\w|\d]*)\s*matlab matrix:\s*(\[(\s\w*|\s*[,|;]+\s*)+ \])+';
+    mazeModel.SourceFile = name; 
 
-    pathLinePattern = 'Path:\s*([\w|\d]*)\s*matlab path matrix:\s*(\[(\s\w*|\s*[,|;]+\s*)+ \])+';
-    
     Paths = [];
     
-    disp(['Importing Maze: ' mazeModel.Name ' from file: ' name ' at location: ' path]);
+    if verbose
+    disp(['Importing Maze: ' mazeModel.Name ' from file: ' name ' at location: ' pathstr]);
+    end;
     
-    
-    [match, groups] = regexp(fileContent, mazeMatrixPattern, 'match', 'tokens');
+    [match, groups] = regexp(fileContent, MazeImporter.DefaultMatrixPattern, 'match', 'tokens');
 
     mazeId = groups{1}{1};
     mazeModel.Name = mazeId;
     mazeMatrixAsString = groups{1}{2}; 
 
+    if verbose
     disp(['Try to evaluate Maze matrix: ' mazeMatrixAsString ]);
-    
+    end;
+
     resultOfEval =  eval( mazeMatrixAsString );
     clear mazeMatrixAsString
     mazeModel.Matrix = resultOfEval; % reverse the row order to get the original Maze Pattern!?
     
-    [match, groups] = regexp(fileContent, pathLinePattern, 'match', 'tokens');
+    [match, groups] = regexp(fileContent, MazeImporter.DefaultPathPattern, 'match', 'tokens');
 
     for i = 1 : length(groups)
         newPath = PathModel();
@@ -44,7 +50,9 @@ function mazeModel = ImportMazeModel( filename )
         newPath.RefMazeName = mazeModel.Name;
         pathMatrixAsString = groups{i}{2}; 
 
+        if verbose
         disp(['Try to evaluate Path matrix: ' pathMatrixAsString ]);
+        end
 
         resultOfEval = eval(pathMatrixAsString);
         clear PathMatrixAsString

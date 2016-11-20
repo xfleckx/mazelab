@@ -9,7 +9,7 @@ p = inputParser;
 % TODO verify all inputs
 defaultLatencyCorrection = 1;
 addOptional(p, 'latencyCorrection', defaultLatencyCorrection, @isnumeric);
-
+addOptional(p, 'verbose', 0)
 parse(p, varargin{:});
 
 latencyCorrection = p.Results.latencyCorrection;
@@ -31,10 +31,15 @@ for condition = conditions
         error('MAZELAB doesnt know any environments. Import them first!');
      end
      
-     disp('Start subsetting per Environment')
-    for maze = MAZELAB.MAZES; 
+    if p.Results.verbose
+        disp('Start subsetting per Environment')
+    end
 
+    for maze = MAZELAB.MAZES; 
+        
+    if p.Results.verbose
         disp(['Start subsetting per Trial Type in Maze: ' maze.Name]);
+    end
         for trialType = trialTypes;
             %de-reference of the content of the cell
             trialType = trialType{1};
@@ -46,17 +51,15 @@ for condition = conditions
                  ['EndTrial' ms trialType ms maze.Name ms path.Id ],'ignoreEmpty',1);
 
                  if isempty(subsets)
+                    fprintf(['Skip '  trialType ms maze.Name ms path.Id ' Reason: No Marker found for this configuration... \n'])
                     continue;
                  end
 
                 trialCount = length(subsets);
 
-                if trialCount == 0
-                    fprintf(['Skip '  trialType ms maze.Name ms path.Id '\n'])
-                    continue;
+                if p.Results.verbose
+                    disp(['Create Trial Statistic: ' trialType ' ' maze.Name ' Path: ' path.Id ]);
                 end
-
-                disp(['Create Trial Statistic: ' trialType ' ' maze.Name ' Path: ' path.Id ]);
 
                 for ti = 1:trialCount
 
