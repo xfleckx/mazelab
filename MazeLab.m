@@ -28,9 +28,10 @@ classdef MazeLab < handle
 
   methods(Access = public)
     function Import (obj, sourceDir , varargin )
-    % function: Import environmental data into MAZELAB
+    % IMPORT: Import environmental data into MAZELAB
     %
-    % Extended description
+    % Expects a directory containing '.maze' files
+
     p = inputParser;
 
     validateSourceDir = @(x) ischar(x) && isstruct(dir(sourceDir));
@@ -40,12 +41,13 @@ classdef MazeLab < handle
 
     mazeFiles = dir(p.Results.sourceDir);
 
-    for f = 1:length(mazeFiles)
-        obj.LASTIMPORT = load_maze(mazeFiles(f).name);
-        obj.MAZES = [ obj.MAZES obj.LASTIMPORT ] ;
-    end
+        for f = 1:length(mazeFiles)
+            obj.LASTIMPORT = load_maze(mazeFiles(f).name);
+            obj.MAZES = [ obj.MAZES obj.LASTIMPORT ] ;
+        end
 
-    end  % function
+    end
+    
     function experiment = CreateExperimentStats(obj, EEG, trialTypes, conditions, subject)
        p = inputParser;
        valEvents = @(x) isfield(x,'event') && ~isempty(x.event);
@@ -58,6 +60,14 @@ classdef MazeLab < handle
 
        experiment = BuildExperiment(EEG, obj, trialTypes, conditions, subject);
     end
+    
+    function ClearMazeCache(obj)
+    % ClearMazeCache  Shortcut to remove all imported mazes.
+    %   If you want to reimport a set of mazes use this methode before!
+       obj.MAZES = [];
+       obj.LASTIMPORT = {};
+    end
+    
     function fig = PlotOverview(obj,varargin)
 
         p = inputParser;
@@ -65,14 +75,14 @@ classdef MazeLab < handle
         parse(p, varargin{:});
 
         mazesCount = numel(obj.MAZES);
-        % Bug here... this won't work for even maze count
-        rows = mod(mazesCount, ceil(mazesCount / 2));
-        cols = mod(mazesCount, ceil(mazesCount / 2));
+        
+        % get a grid
+        cols = ceil(sqrt(mazesCount));
+        rows = ceil(mazesCount / cols);
 
-        fig = figure;
+        fig = figure('Name','Mazes available','NumberTitle','off');
 
         for i = 1:mazesCount
-
             subplot(rows, cols, i);
             PlotAsImageSc(obj.MAZES(i), 'mazeOnly', 1, 'noFigure', 1);
         end
