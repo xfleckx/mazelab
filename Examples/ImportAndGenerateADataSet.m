@@ -63,25 +63,26 @@ plotter.preparePlot(mazeOfTrial1).ApplyData(statsOfTrial1).PlotAsImageSc('title'
 % avgPlot.preparePlot(mazeOfTrial1.Matrix).ApplyData(avgTicsInThisMaze).PlotAsImageSc('title', ' AVG Time In Cell');
 %% Create Event classes from imported event structure
 
-% first setup all interesting marker pattern and their corresponding envt classes
-%
-% marker separator
-ms = '\t'; % tabulator
-turnFromTo = ['Turn' ms 'From\(\d+\s\d+\)' ms 'To\(\d+\s\d+\)'];
-%
+% first setup all interesting marker pattern and their corresponding event classes
 
 %% First add specific markers for Condition and Trial names
 
-expectedMarkerPattern(end+1) = MarkerPattern('Begin Condition', 'Begin Cond', 'conditionType', ' \W+\w*\W+ '); 
+converter = EventConverter();
+converter.TrialTypePattern = 'BeginTrial\s+(\w*)';
+converter.ConditionTypePattern = 'Begin Condition \W+(\w*)\W+'; 
 
-expectedMarkerPattern(end+1) = MarkerPattern('Begin Trial', 'Begin Cond', 'trialType', 'Trial \W+\w*\W+ '); 
-% assuming we want to compare Turns against non-turns
-expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'T' ms 'LEFT'],'T CROSS LEFT TURN');
-expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'T' ms 'RIGHT'],'T CROSS RIGHT TURN');
-expectedMarkerPattern(end+1) = MarkerPattern([turnFromTo ms 'I' ms 'STRAIGHT'],'NO TURN');
+% marker separator
+ms = '\t'; % tabulator
+turnFromTo = ['Turn' ms 'From\(\d+\s\d+\)' ms 'To\(\d+\s\d+\)'];
+
+converter.Create([turnFromTo ms 'T' ms 'LEFT'],'T CROSS LEFT TURN');
+converter.Create([turnFromTo ms 'T' ms 'RIGHT'],'T CROSS RIGHT TURN');
+converter.Create([turnFromTo ms 'I' ms 'STRAIGHT'],'NO TURN');
+
 % don't care about the actual objects... just wan't to look after an ERP
-expectedMarkerPattern(end+1) = MarkerPattern('ShowObject|ObjectFound','Object');
-% % Create Events for epoching the data set
-% EEG = GenerateEventClasses(EEG, expectedMarkerPattern);
+converter.Create('ShowObject|ObjectFound','Object');
+
+%% Create Events for epoching the data set
+[EEG2, conversionResult] = GenerateEventClasses(EEG, converter, 'verbose', 1);
 % eeg_checkset;
 % Export the Events to mobilab

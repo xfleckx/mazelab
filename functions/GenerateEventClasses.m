@@ -1,4 +1,4 @@
-function result = GenerateEventClasses( EEG, classes, varargin)
+function [EEG, conversionResult] = GenerateEventClasses( EEG, eventConverter, varargin)
 % GenerateAbstractEvents  Create more abstract Events from context specific Events. 
 %   Example 'TURN From... To... L ' will become L TURN
 %   Intention is to increase sample size for different epochs.
@@ -9,14 +9,25 @@ function result = GenerateEventClasses( EEG, classes, varargin)
     EEGLabExt.Check(EEG, 'ignoreUrevents');
 
     p = inputParser;
-    p.addOptional(p, 'preserveOriginals', false);
+    p.addRequired('EEG', @(x) isfield(x, 'event'));
+    p.addRequired('eventConverter', @(x) isa(x, 'EventConverter') );
+    p.addOptional('preserveOriginals', 0);
+    p.addOptional('verbose', 0);
     
-    result.markersUntouched = {};
-    result.totalMarkersUntouched = 0;
+    p.parse(EEG, eventConverter, varargin{:});
+
+    beVerbose = p.Results.verbose;
+
+    conversionResult.markersUntouched = {};
+    conversionResult.totalMarkersUntouched = 0;
 
     nevents = numel(EEG.event);
 
-    npattern = numel(classes);
+    if nevents < 1
+        disp('Nothing to do, EEG.event is empty');
+    end
+
+    npattern = eventConverter.GetCountOfEventClasses();
 
     nameOfCondition = '';
     nameOfTrialType = '';
@@ -24,68 +35,80 @@ function result = GenerateEventClasses( EEG, classes, varargin)
     for e_i = 1 : nevents
         evt = EEG.event(e_i);
         
+        if(e_i == 1)
+            EEG.urevent = evt;
+        else
+            EEG.urevent(e_i) = evt;
+        end
+        
         markerTouched = false;
+        
+        if beVerbose
+            disp('__________')
+            disp(['Try matching: ' sprintf(evt.type) ' with regex: ']);
+        end
 
-            for p_i = 1 : npattern
-                pair = classes(p_i);
-
-                if regexp(evt.type, pair.Pattern, 'match') 
-
-                    markerTouched = true;
-
-                    if pair.DescribesACondition(evt.type)
-                        nameOfCondition = pair.GetConditionName(evt.type);
-                    end
-
-                    [isATrialType, name] = pair.DescribesATrialType(evt.type)
-                        nameOfTrialType = pair.GetTrialTypeName(evt.type);
-                    end
-                    
-                    newEventType = [nameOfCondition ' ' nameOfTrialType ' ' pair.EventClass]; % Make the type of the new event
-                    
-                    newEventType = strtrim(newEventType);
-
-                    % be aware that end has already changed
-                    EEG.event(end).type = newEventType;
-                    % Specifying the event latency to be 0.1 sec before the referent event (in real data points) 
-                    EEG.event(end).latency = EEG.event(e_i).latency; 
-
-                    EEG.urevent(e_i) = evt;
-
-                    if p.Results.preserveOriginals
-                        EEG.event(end+1).type = markerClass;
-                        EEG.event(end).latency = evt.latency;
-                        EEG.event(end).duration = evt.duration;
-                    else
-                        EEG.event(e_i).type = markerClass;
-                    end
-
-                end
+        for p_i = 1 : npattern
+            pair = eventConverter.PatternForEventClasses(p_i);
+            
+            if beVerbose
+                disp(pair.Pattern);
             end
 
+            [isACondition, name] = eventConverter.ContainsAConditionName(evt.type);
+            if isACondition
+                if beVerbose
+                    disp(['Marker: '  sprintf(evt.type) ' contains Condition:' name]);
+                end
+                nameOfCondition = name;
+            end
+                
+            [isATrialType, name] = eventConverter.ContainsATrialType(evt.type);
+            if isATrialType
+                if beVerbose
+                disp(['Marker: ' sprintf(evt.type) ' contains Trial:' name]);
+                end
+                nameOfTrialType = name;
+            end
+            
+            tryMatching  = regexp(evt.type, pair.Pattern, 'match');
+
+            if isempty(tryMatching)
+                continue;
+            end
+            
+            if beVerbose
+                disp('Match found...');
+            end
+
+            markerTouched = true;
+            
+            markerClass = [nameOfCondition ' ' nameOfTrialType ' ' pair.EventClass]; % Make the type of the new event
+            
+            markerClass = strtrim(markerClass);
+
+            if p.Results.preserveOriginals
+                if beVerbose
+                    disp(['Add new Event: '  markerClass ' based on: ' sprintf(evt.type)]);
+                end
+                EEG.event(end+1).type = markerClass;
+                EEG.event(end).latency = evt.latency;
+                EEG.event(end).duration = evt.duration;
+            end
+
+            if ~p.Results.preserveOriginals
+                if beVerbose
+                    disp(['Convert: ' sprintf(evt.type) ' => ' markerClass]);
+                end
+                EEG.event(e_i).type = markerClass;
+            end
+        end
+
         if ~markerTouched 
-            result.totalMarkersUntouched = result.totalMarkersUntouched + 1;
-            markersUntouched{end+1} = evt.marker;
+            conversionResult.totalMarkersUntouched = conversionResult.totalMarkersUntouched + 1;
+            conversionResult.markersUntouched{end+1} = evt.type;
         end 
                 
     end
 
 end
-
-
-
-    for e_i = 1:numel(EEG.event)
-
-        evt = EEG.event(e_i);
-
-        for p_i = 1:numel(classPatterns)
-
-            regex = classPatterns{p_i}{1};
-            markerClass = classPatterns{p_i}{2};
-
-            if regexp(evt.type,regex,'match')
-               markerTouched = true;
-               
-               
-            end
-        end
