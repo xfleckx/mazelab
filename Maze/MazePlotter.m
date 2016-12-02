@@ -6,6 +6,10 @@ classdef MazePlotter < handle
                             0 1 1 0 ; ...
                             0 1 1 0 ; ...
                             0 0 0 0];
+
+        DefaultColorMap = [ 0, 0, 0
+                            0, 0, 0.01
+                            1, 1, 1.0];
     end
 
     properties (Access = private)
@@ -59,13 +63,21 @@ classdef MazePlotter < handle
             obj.plotMatrix = obj.plotMatrix .* extraPolatedDataMatrix; 
         end
 
-       function PlotAsImageSc(obj, varargin)
+        function matrix = ReturnPlotMatrix(obj)
+        %% just Return the matrix for custom plot functions
+            matrix = obj.plotMatrix;
+            
+            return;
+        end
+
+        function PlotAsImageSc(obj, varargin)
 
                 p = inputParser;
                 addOptional(p, 'mazeOnly', 1);
                 addOptional(p, 'noFigure', 1);
                 addOptional(p, 'debugMode', 0);
                 addOptional(p, 'title', 'Title');
+                addOptional(p, 'colormap', obj.DefaultColorMap);
 
                 parse(p, varargin{:});
  
@@ -80,9 +92,30 @@ classdef MazePlotter < handle
                 set(gca,'YDir','normal');
                 set(gca,'xtick',[])
                 set(gca,'ytick',[])
-                colormap('gray');
+                colormap(p.Results.colormap);
+                colorbar('Ticks',[0.2, 0.8],...
+                       'TickLabels',{'No Cell','Hallway'}); 
                 pbaspect([sizeOfPlotMatrix(2) sizeOfPlotMatrix(1) 1]);
-            end
+        end
+
+        function PlotStructure(obj, varargin)
+            p = inputParser;
+            addOptional(p, 'mazeOnly', 1);
+            addOptional(p, 'noFigure', 1);
+            addOptional(p, 'debugMode', 0);
+            addOptional(p, 'title', 'Title');
+            
+            parse(p, varargin{:});
+ 
+            sizeOfPlotMatrix = size(obj.plotMatrix);
+            
+            imagesc(flipud(obj.plotMatrix));
+            title(p.Results.title);
+            colorbar('Ticks',[0.2, 0.8],...
+                     'TickLabels',{'No Cell','Hallway'});
+                     
+            pbaspect([sizeOfPlotMatrix(2) sizeOfPlotMatrix(1) 1]);
+        end
     end
 
     methods (Access = private)

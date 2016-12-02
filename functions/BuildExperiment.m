@@ -1,7 +1,7 @@
 function output = BuildExperiment(EEG, MAZELAB, trialTypes, conditions, subject, varargin)
-%myFun - Description
+%BuildExperiment - Create an ExperimentStatistics object containing the experiment data
 %
-% Syntax: output = myFun(input)
+% Syntax: output = BuildExperiment(EEG, MAZELAB, trialTypes, conditions, subject, 'useUrEvents', 1)
 %
 % Long description
 
@@ -10,6 +10,8 @@ p = inputParser;
 defaultLatencyCorrection = 1;
 addOptional(p, 'latencyCorrection', defaultLatencyCorrection, @isnumeric);
 addOptional(p, 'verbose', 0)
+addOptional(p, 'useUrEvents', false, @boolean);
+
 parse(p, varargin{:});
 
 latencyCorrection = p.Results.latencyCorrection;
@@ -23,7 +25,13 @@ for condition = conditions
 
     disp('Start subsetting per Condition');
 
-    subsetPerCondition = subset(EEG.event,...
+    sourceEventSet = EEG.event;
+
+    if p.Results.useUrEvents
+        sourceEventSet = EEG.urevent;
+    end 
+
+    subsetPerCondition = subset(sourceEventSet,...
      ['Begin\s+Condition\s+\W+' condition '\W+'],...
      ['End\s+Condition\s+\W+' condition '\W+']); 
 
