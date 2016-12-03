@@ -7,9 +7,10 @@ classdef MazePlotter < handle
                             0 1 1 0 ; ...
                             0 0 0 0];
 
-        DefaultColorMap = [ 0, 0, 0
+        DefaultColorMap = [ 1, 1, 1.0
                             0, 0, 0.01
-                            1, 1, 1.0];
+                            0, 0, 0 ];
+                            
     end
 
     properties (Access = private)
