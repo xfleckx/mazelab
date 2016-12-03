@@ -15,6 +15,8 @@ classdef MazePlotter < handle
 
     properties (Access = private)
         plotMatrix
+        initialMazeMatrix
+        mazeAndDataMatrix
     end
 
     methods (Access = public)
@@ -25,8 +27,11 @@ classdef MazePlotter < handle
             addRequired(p, 'mazeMatrix', @ismatrix);
             
             parse(p, mazeMatrix, varargin{:});
+            
+            obj.initialMazeMatrix = mazeMatrix;
 
             obj.plotMatrix = kron(mazeMatrix, obj.DefaultKernel);
+            
             [om, on] = size(mazeMatrix);
             
             [m,n] = size(obj.DefaultKernel);
@@ -58,6 +63,8 @@ classdef MazePlotter < handle
             end
 
             kernel = ones( size(obj.DefaultKernel) );
+            
+            obj.mazeAndDataMatrix = obj.initialMazeMatrix .* matrixContainingData;
 
             extraPolatedDataMatrix = kron(matrixContainingData, kernel);
 
@@ -67,8 +74,42 @@ classdef MazePlotter < handle
         function matrix = ReturnPlotMatrix(obj)
         %% just Return the matrix for custom plot functions
             matrix = obj.plotMatrix;
+        end
+
+        function PlotAsColormap(obj, varargin)
             
-            return;
+                p = inputParser;
+                addOptional(p, 'mazeOnly', 1);
+                addOptional(p, 'noFigure', 1);
+                addOptional(p, 'debugMode', 0);
+                addOptional(p, 'title', 'Title');
+                addOptional(p, 'colormap', obj.DefaultColorMap);
+                addOptional(p, 'noLegend', 0);
+
+                parse(p, varargin{:});
+                
+                matrixToPlot = [];
+                if ~isempty(obj.mazeAndDataMatrix)
+                    matrixToPlot = obj.mazeAndDataMatrix;
+                else
+                    matrixToPlot = obj.initialMazeMatrix;
+                end
+
+                sizeOfPlotMatrix = size(matrixToPlot);
+                
+                imagesc(flipud(matrixToPlot));
+                title(p.Results.title);
+                set(gca,'YDir','normal');
+                set(gca,'xtick',[])
+                set(gca,'ytick',[])
+                colormap(p.Results.colormap);
+                
+                if ~p.Results.noLegend
+                colorbar('Ticks',[0.2, 0.8],...
+                       'TickLabels',{'No Cell','Hallway'}); 
+                end
+
+                pbaspect([sizeOfPlotMatrix(2) sizeOfPlotMatrix(1) 1]);
         end
 
         function PlotAsImageSc(obj, varargin)
@@ -79,6 +120,7 @@ classdef MazePlotter < handle
                 addOptional(p, 'debugMode', 0);
                 addOptional(p, 'title', 'Title');
                 addOptional(p, 'colormap', obj.DefaultColorMap);
+                addOptional(p, 'noLegend', 0);
 
                 parse(p, varargin{:});
  
@@ -94,8 +136,12 @@ classdef MazePlotter < handle
                 set(gca,'xtick',[])
                 set(gca,'ytick',[])
                 colormap(p.Results.colormap);
+                
+                if ~p.Results.noLegend
                 colorbar('Ticks',[0.2, 0.8],...
                        'TickLabels',{'No Cell','Hallway'}); 
+                end
+
                 pbaspect([sizeOfPlotMatrix(2) sizeOfPlotMatrix(1) 1]);
         end
 
