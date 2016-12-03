@@ -6,7 +6,8 @@ function mazeStats = CreateMazeStats( trialStats )
 
     mazeStats = MazeStatistics(trialStats.Maze, trialStats.Path);
     mazeStats.MazeMatrix = trialStats.Maze.Matrix;
-
+    mazeStats.MazeMatrix(mazeStats.MazeMatrix > 0) = 1;
+    
     unitSegments = subset(trialStats.EventSet, 'Entering Unit', 'Exiting Unit');
     countOfUnits = length(unitSegments);
 
