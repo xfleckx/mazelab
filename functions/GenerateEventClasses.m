@@ -83,7 +83,7 @@ function [EEG, conversionResult] = GenerateEventClasses( EEG, eventConverter, va
 
             markerTouched = true;
             
-            markerClass = [nameOfCondition ' ' nameOfTrialType ' ' pair.EventClass]; % Make the type of the new event
+            markerClass = [pair.EventClass ' ' nameOfCondition ' ' nameOfTrialType]; % Make the type of the new event
             
             markerClass = strtrim(markerClass);
 
