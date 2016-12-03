@@ -21,7 +21,7 @@ classdef EventConverter < handle
                 error('You tried to push a MarkerClass which already exists!');
             end
 
-            if isempty(obj.PatternForEventClasses)
+            if numel(obj.PatternForEventClasses) < 1
                 obj.PatternForEventClasses = MarkerPattern(eventPattern, markerClass);
                 return;
             end
