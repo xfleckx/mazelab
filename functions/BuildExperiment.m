@@ -10,7 +10,7 @@ p = inputParser;
 defaultLatencyCorrection = 1;
 addOptional(p, 'latencyCorrection', defaultLatencyCorrection, @isnumeric);
 addOptional(p, 'verbose', 0)
-addOptional(p, 'useUrEvents', false, @boolean);
+addOptional(p, 'useUrEvents', 0);
 
 parse(p, varargin{:});
 
@@ -75,7 +75,7 @@ for condition = conditions
 
                     trial.MazeStats = CreateMazeStats(trial);
 
-                    turnSegments = contextSubset(trial.EventSet, 'Entering\s+Unit', 'Turn\s+From', 'contextOp', 'adjacent');
+                    turnSegments = contextSubset(trial.EventSet, 'Entering\s+Unit', 'Incorrect|Turn\s+From', 'contextOp', 'adjacent');
                     turnCount = length(turnSegments);
 
                     for idx = 1:turnCount
@@ -94,13 +94,19 @@ for condition = conditions
 
                         [match, token] = regexp(marker.type,'\s+[ILTX]+\s+(\w+)', 'match', 'tokens');
                         turn.Type = token{1}{1};
-
-                        [match, token] = regexp(marker.type,'From\((\d+\s+)(\s?\d+)\)\s+To\((\d+\s+)(\s?\d+)\)','match','tokens');
+                        
+                        expression = '(?<variant>Incorrect|Turn)\s+From\((?<x1>\d+)\s+(?<y1>\d+)\)\s?To\((?<x2>\d+)\s+(?<y2>\d+)\)\s+';
+                        
+                        tokenNames = regexp(marker.type, expression, 'names');
+                        
+                        turn.Variant = tokenNames.variant;
+                        
+                        %[match, token] = regexp(marker.type,'From\((\d+\s+)(\s?\d+)\)\s+To\((\d+\s+)(\s?\d+)\)','match','tokens');
 
                         % Matlab starts counting at 1, Maze export first
                         % row/colum as 0 so increment all by one!
-                        turn.From = [ str2num(token{1}{1})+1 str2num(token{1}{2})+1 ];
-                        turn.To = [ str2num(token{1}{3})+1 str2num(token{1}{4})+1 ];
+                        turn.From = [ str2num(tokenNames.x1)+1 str2num(tokenNames.y1)+1 ];
+                        turn.To = [ str2num(tokenNames.x2)+1 str2num(tokenNames.y2)+1 ];
 
                         [match, token] = regexp(marker.type,'\s+([ILTX])+\s+\w+', 'match', 'tokens');
                         turn.UnitType = token{1}{1}; % dereference the cell value

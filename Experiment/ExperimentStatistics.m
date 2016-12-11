@@ -25,7 +25,7 @@ classdef ExperimentStatistics
         % maybe this could be solved by logical indexing
         selectedTrials = [];
             if isfield(obj.Trials,attribute)
-                selectedTrials = arrayfun(@(t) getfield(t,attribute) == attributeValue,obj.Trials,'UniformOutput',1) 
+                selectedTrials = arrayfun(@(t) getfield(t,attribute) == attributeValue,obj.Trials,'UniformOutput',1);
             end
         end
         function duration = getSummarizedDuration(obj)
