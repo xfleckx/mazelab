@@ -55,16 +55,14 @@ function vers = eegplugin_mazelab(fig, trystrs, catchstrs)
         p = p(1:findstr(p,'eegplugin_mazelab.m')-1);
         addpath(genpath( p ));
     end;
-
-    % Setup variables
-    if ~exist('MAZES', 'var')
-        disp('Setup MazeLab Variables...');
-        
-        MAZELAB.MAZES = [];
-        MAZELAB.LASTIMPORT = '';
-        assignin('base','MAZELAB', MAZELAB);
-    end;
-
+    
+    try
+        labInstance = evalin('base','MAZELAB');
+        if ~isvalid(labInstance), error('MazeLab:unexpectedError','Unexpected error.\nRestarting MazeLab...');end
+    catch
+        labInstance = MazeLab.getInstance();
+        assignin('base','MAZELAB', labInstance)
+    end
     
     % find import data menu
     % ---------------------

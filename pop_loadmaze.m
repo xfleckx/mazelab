@@ -6,7 +6,7 @@ function [ MAZELAB ] = pop_loadmaze( MAZELAB )
 [filename, filepath] = uigetfile('*.maze', 'Choose .maze files -- pop_loadmaze()');
 drawnow;
 if filename == 0 return; end;
-MAZELAB.LASTIMPORT =load_maze([filepath filename]);
+MAZELAB.LASTIMPORT = load_maze([filepath filename]);
 MAZELAB.MAZES = [ MAZELAB.MAZES MAZELAB.LASTIMPORT ] ;
 
 end
