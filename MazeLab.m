@@ -15,13 +15,13 @@ classdef MazeLab < handle
           end
 
           MAZELAB = localObj;
-     end  % function
+     end
     end
 
   methods (Access = private)
 
     function obj = MazeLab()
-
+        % does intentionally nothing...
     end
 
   end
@@ -55,7 +55,7 @@ classdef MazeLab < handle
        addRequired(p, 'trialTypes', @iscell);
        addRequired(p, 'conditions', @iscell);
        addRequired(p, 'subject', @ischar);
-       addOptional(p, 'useUrEvents', false);
+       addOptional(p, 'useUrEvents', 0);
 
        parse(p, EEG, trialTypes, conditions, subject, varargin{:});
        useUrEvents = p.Results.useUrEvents;
@@ -84,26 +84,37 @@ classdef MazeLab < handle
 
         fig = figure('Name','Mazes available','NumberTitle','off');
         
-        plotter = MazePlotter();
 
         for i = 1:mazesCount
+            plotter = MazePlotter();
             subplot(rows, cols, i);
             maze = obj.MAZES(i);
             plotter.preparePlot(maze.Matrix)...
-            .PlotAsImageSc('title', maze.Name, 'mazeOnly', 1, 'noFigure', 1);
+            .PlotStructure('title', maze.Name, 'mazeOnly', 1, 'noFigure', 1, 'noColorbar', 1);
         end
+
+        
+        
+        tightfig;
+%         
+%         %hp4 = get(subplot(cols,rows,mazesCount),'Position');
+%         colorbar('southoutside',...
+%                  'Ticks',[0.2, 0.8],...
+%                  'TickLabels',{'No Cell','Hallway'});
 
     end
 
-    function result = GenerateMarkerClasses(obj, EEG, classPatterns, varargin)
-
+    function [EEG, result] = RenameMarkerToClasses(obj, EEG, converter, varargin)
+    %% RenameMarkerToClasses Transform existing very specific marker to general classes
+    %
         p = inputParser;
         p.addRequired(p, 'EEG', @(x) isfield(x, 'event'));
-        p.addRequired(p, 'classPatterns', @(x) isa(x, 'MarkerPattern') );
+        % TODO: eventConverter should become optional when default conversion is available
+        p.addRequired(p, 'converter', @(x) isa(x, 'EventConverter') );
 
         parse(p, EEG, classPatterns, varargin{:});
 
-        result = GenerateEventClasses(EEG, classPatterns, varargin);
+        [EEG, result] = GenerateEventClasses(EEG, converter, varargin);
     end
   end
 end
